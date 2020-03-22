@@ -264,48 +264,29 @@ public class AliossflutterPlugin implements MethodCallHandler {
                 });
     }
 
+    /// sts token 初始化
     private void tokenInit() {
+        String ak = _call.argument("AccessKeyId");
+        String sk = _call.argument("AccessKeySecret");
+        String token = _call.argument("SecurityToken");
+        String expiration = _call.argument("Expiration");
         final String _id = _call.argument("id");
         endpoint = _call.argument("endpoint");
-        final OSSCredentialProvider credentialProvider = new OSSFederationCredentialProvider() {
-            @Override
-            public OSSFederationToken getFederationToken() {
-                try {
-//                    {
-//                        "StatusCode": 200,
-//                            "AccessKeyId":"STS.iA645eTOXEqP3cg3VeHf",
-//                            "AccessKeySecret":"rV3VQrpFQ4BsyHSAvi5NVLpPIVffDJv4LojUBZCf",
-//                            "Expiration":"2015-11-03T09:52:59Z",
-//                            "SecurityToken":"CAES7QIIARKAAZPlqaN9ILiQZPS+JDkS/GSZN45RLx4YS/p3OgaUC+oJl3XSlbJ7StKpQ...."
-//                      }
-                    String ak = _call.argument("AccessKeyId");
-                    String sk = _call.argument("AccessKeySecret");
-                    String token = _call.argument("SecurityToken");
-                    String expiration = _call.argument("Expiration");
-                    return new OSSFederationToken(ak, sk, token, expiration);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }
-        };
+
+        final Map<String, String> m1 = new HashMap();
+        m1.put("result", "success");
+        m1.put("id", _id);
+
+        final OSSStsTokenCredentialProvider tokenCredentialProvider = new OSSStsTokenCredentialProvider(ak, sk, token);
         final ClientConfiguration conf = new ClientConfiguration();
         conf.setConnectionTimeout(15 * 1000); // 连接超时时间，默认15秒
         conf.setSocketTimeout(15 * 1000); // Socket超时时间，默认15秒
         conf.setMaxConcurrentRequest(5); // 最大并发请求数，默认5个
         conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
 
-        oss = new OSSClient(registrar.context(), endpoint, credentialProvider, conf);
-        final Map<String, String> m1 = new HashMap();
-        m1.put("result", "success");
-        m1.put("id", _id);
-        activity.runOnUiThread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        channel.invokeMethod("onInit", m1);
-                    }
-                });
+        oss = new OSSClient(registrar.context(), endpoint, tokenCredentialProvider, conf);
+
+        channel.invokeMethod("onInit", m1);
     }
 
     private void upload(final MethodCall call) {
