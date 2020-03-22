@@ -265,6 +265,8 @@ public class AliossflutterPlugin implements MethodCallHandler {
     }
 
     private void tokenInit() {
+        final String _id = _call.argument("id");
+        endpoint = _call.argument("endpoint");
         final OSSCredentialProvider credentialProvider = new OSSFederationCredentialProvider() {
             @Override
             public OSSFederationToken getFederationToken() {
@@ -276,7 +278,6 @@ public class AliossflutterPlugin implements MethodCallHandler {
 //                            "Expiration":"2015-11-03T09:52:59Z",
 //                            "SecurityToken":"CAES7QIIARKAAZPlqaN9ILiQZPS+JDkS/GSZN45RLx4YS/p3OgaUC+oJl3XSlbJ7StKpQ...."
 //                      }
-                    endpoint = _call.argument("endpoint");
                     String ak = _call.argument("AccessKeyId");
                     String sk = _call.argument("AccessKeySecret");
                     String token = _call.argument("SecurityToken");
